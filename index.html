@@ -281,7 +281,6 @@ tfoot td.tr{text-align:right}
       <input type="password" id="lp" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
     </div>
     <button class="btn-login" id="btn-login" onclick="doLogin()">Masuk</button>
-    <p class="lhint">Username &amp; password : <strong>masukkan</strong></p>
   </div>
 </div>
 
@@ -400,6 +399,14 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 // ================================================================
+// HASH UTILITY
+// ================================================================
+async function sha256(str){
+  const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+// ================================================================
 // CONSTANTS
 // ================================================================
 const M3=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
@@ -482,11 +489,13 @@ async function doLogin(){
   const err=document.getElementById('lerr');
   err.style.display='none';
   if(!role){showErr('Pilih kelompok user terlebih dahulu.');return;}
+  if(!user||!pass){showErr('Username dan password tidak boleh kosong.');return;}
   const btn=document.getElementById('btn-login');
   btn.disabled=true; btn.textContent='Memeriksa...';
   try{
     const acc=DB.accounts[role];
-    if(!acc||user!==acc.username||pass!==acc.password){
+    const hashed=await sha256(pass);
+    if(!acc||user!==acc.username||hashed!==acc.password){
       showErr('Username atau password salah.');
       btn.disabled=false; btn.textContent='Masuk'; return;
     }
@@ -945,7 +954,7 @@ function renderAdminAkun(){
     {key:'bhabin',   label:'Subdit BHABIN'},
     {key:'binpolmas',label:'Subdit BINPOLMAS'},
   ];
-  const adminAcc=DB.accounts['admin']||{username:'admin',password:'admin'};
+  const adminAcc=DB.accounts['admin']||{username:'',password:''};
 
   const adminCard=`
   <div class="akun-card" style="border-color:var(--blue-mid);background:var(--blue-light)">
@@ -964,12 +973,12 @@ function renderAdminAkun(){
   </div>`;
 
   const subCards=subList.map(u=>{
-    const acc=DB.accounts[u.key]||{username:'admin',password:'admin'};
+    const acc=DB.accounts[u.key]||{username:'',password:''};
     return`<div class="akun-card">
       <div class="akun-label">${u.label}</div>
       <div class="akun-fields">
         <div class="akun-field"><label>Username</label><input id="acc-usr-${u.key}" type="text" value="${acc.username}" autocomplete="off"></div>
-        <div class="akun-field"><label>Password</label><input id="acc-pwd-${u.key}" type="text" value="${acc.password}" autocomplete="off"></div>
+        <div class="akun-field"><label>Password</label><input id="acc-pwd-${u.key}" type="password" value="${acc.password}" autocomplete="off"></div>
         <button class="btn pri" onclick="saveAkun('${u.key}')">Simpan</button>
       </div>
     </div>`;
@@ -985,8 +994,9 @@ async function saveAkunAdmin(){
   const usr=document.getElementById('acc-usr-admin')?.value.trim();
   const pwd=document.getElementById('acc-pwd-admin')?.value;
   if(!usr){showNotif('err','Gagal','Username tidak boleh kosong.');return;}
-  const oldPwd=DB.accounts['admin']?.password||'admin';
-  DB.accounts['admin']={username:usr,password:pwd?pwd:oldPwd};
+  const oldPwd=DB.accounts['admin']?.password||'';
+  const hashedPwd=pwd ? await sha256(pwd) : oldPwd;
+  DB.accounts['admin']={username:usr,password:hashedPwd};
   try{
     await setDoc(doc(db,'accounts','admin'),DB.accounts['admin']);
     document.getElementById('acc-pwd-admin').value='';
@@ -999,9 +1009,11 @@ async function saveAkun(key){
   const usr=document.getElementById('acc-usr-'+key)?.value.trim();
   const pwd=document.getElementById('acc-pwd-'+key)?.value.trim();
   if(!usr||!pwd){showNotif('err','Gagal','Username dan password tidak boleh kosong.');return;}
-  DB.accounts[key]={username:usr,password:pwd};
+  const hashedPwd=await sha256(pwd);
+  DB.accounts[key]={username:usr,password:hashedPwd};
   try{
-    await setDoc(doc(db,'accounts',key),{username:usr,password:pwd});
+    await setDoc(doc(db,'accounts',key),{username:usr,password:hashedPwd});
+    document.getElementById('acc-pwd-'+key).value='';
     showNotif('ok','Akun Diperbarui','Username dan password '+USERS[key]?.label+' berhasil disimpan.');
   }catch(e){showNotif('err','Gagal','Gagal menyimpan ke server.');}
 }
