@@ -301,7 +301,7 @@ tfoot td.tr{text-align:right}
       </div>
       <div>
         <div class="htitle">Web Anggaran Ditbinmas</div>
-        <div class="hsub">RPD Satker T.A. 2026 — Polda Aceh</div>
+        <div class="hsub">RPD Satker — Polda Aceh</div>
       </div>
     </div>
     <div class="hr">
@@ -313,7 +313,7 @@ tfoot td.tr{text-align:right}
     <nav class="sidenav" id="sidenav"></nav>
     <main>
       <div class="page" id="page-dashboard">
-        <div class="ph"><h1>Dashboard</h1><p>Ringkasan Rencana Penarikan Dana T.A. 2026</p></div>
+        <div class="ph"><h1>Dashboard</h1><p>Ringkasan Rencana Penarikan Dana</p></div>
         <div class="stats-row" id="dash-stats"></div>
         <div class="card"><div class="ct">Rekap Anggaran per Subsatker</div><div class="tw" id="dash-table"></div></div>
         <div class="card"><div class="ct">Progres Triwulan vs Target Kemenkeu</div><div class="twl-grid" id="dash-twl"></div></div>
@@ -337,6 +337,22 @@ tfoot td.tr{text-align:right}
       <div class="page" id="page-admin-akun">
         <div class="ph"><h1>Kelola Akun Pengguna</h1><p>Atur username dan password kelompok user subsatker</p></div>
         <div id="admin-akun-content"></div>
+      </div>
+      <div class="page" id="page-admin-tahun">
+        <div class="ph"><h1>Tahun Anggaran</h1><p>Arsip dan tutup tahun anggaran aktif</p></div>
+        <div id="admin-tahun-content"></div>
+      </div>
+      <div class="page" id="page-admin-arsip">
+        <div class="ph">
+          <button class="btn sec sm" onclick="navTo('admin-tahun')" style="margin-bottom:10px">← Kembali</button>
+          <h1 id="admin-arsip-h1">Arsip</h1>
+          <p id="admin-arsip-sub"></p>
+        </div>
+        <div id="admin-arsip-content"></div>
+      </div>
+      <div class="page" id="page-arsip">
+        <div class="ph"><h1>Arsip Tahun Anggaran</h1><p>Data RPD dan pengajuan tahun-tahun sebelumnya</p></div>
+        <div id="arsip-content"></div>
       </div>
     </main>
   </div>
@@ -402,7 +418,7 @@ tfoot td.tr{text-align:right}
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import {
   getFirestore, collection, doc,
-  getDocs, getDoc, setDoc, addDoc, deleteDoc, updateDoc, query, where
+  getDocs, getDoc, setDoc, addDoc, deleteDoc, updateDoc, query, where, writeBatch
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 // ================================================================
@@ -588,12 +604,14 @@ function buildNav(){
       {id:'admin-rekap-bhabin',label:'Rekap Subdit BHABIN'},
       {id:'admin-rekap-binpolmas',label:'Rekap Subdit BINPOLMAS'},
       {id:'admin-akun',label:'Kelola Akun'},
+      {id:'admin-tahun',label:'Tahun Anggaran'},
     ];
   } else {
     items=[
       {id:'dashboard',label:'Dashboard'},
       {id:'rpd',label:'RPD & Pengajuan'},
       {id:'rekap',label:'Rekap'},
+      {id:'arsip',label:'Arsip'},
     ];
   }
   let html='<div class="snlbl">Menu</div>';
@@ -606,16 +624,20 @@ function buildNav(){
 function navTo(page){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.sidenav a').forEach(a=>a.classList.remove('active'));
-  const pageId=page.startsWith('admin-rekap-')?'admin-rekap':page;
+  const pageId=page.startsWith('admin-rekap-')?'admin-rekap':
+               page.startsWith('admin-arsip-')?'admin-arsip':page;
   const pg=document.getElementById('page-'+pageId);
   if(pg)pg.classList.add('active');
   const sn=document.getElementById('sn-'+page);
   if(sn)sn.classList.add('active');
   if(page.startsWith('admin-rekap-')){
     renderAdminRekap(page.replace('admin-rekap-',''));
+  } else if(page.startsWith('admin-arsip-')){
+    renderAdminArsipDetail(page.replace('admin-arsip-',''));
   } else {
     ({dashboard:renderDashboard,rpd:renderRPD,rekap:renderRekap,
-      'admin-kelola':renderAdminKelola,'admin-akun':renderAdminAkun})[page]?.();
+      'admin-kelola':renderAdminKelola,'admin-akun':renderAdminAkun,
+      'admin-tahun':renderAdminTahun,'arsip':renderArsip})[page]?.();
   }
 }
 window.navTo=navTo;
@@ -1133,6 +1155,255 @@ async function submitSurat(){
   }catch(e){showNotif('err','Gagal','Gagal menyimpan pengajuan ke server.');}
 }
 window.submitSurat=submitSurat;
+
+// ================================================================
+// ADMIN — TAHUN ANGGARAN
+// ================================================================
+async function renderAdminTahun(){
+  const el=document.getElementById('admin-tahun-content');
+  el.innerHTML=`<div style="font-size:13px;color:var(--gray-400)">Memuat data arsip...</div>`;
+  let arsipList=[];
+  try{
+    const metaSnap=await getDocs(collection(db,'arsip_meta'));
+    metaSnap.forEach(d=>arsipList.push(d.id));
+    arsipList.sort().reverse();
+  }catch(e){}
+  const tahunAktif=new Date().getFullYear();
+  el.innerHTML=`
+    <div class="card" style="border-color:var(--blue-mid);background:var(--blue-light);margin-bottom:16px">
+      <div class="ct" style="color:var(--blue-dark)">Tahun Anggaran Aktif</div>
+      <div style="padding:0 18px 18px">
+        <div style="font-size:28px;font-weight:700;color:var(--blue);margin-bottom:6px">${tahunAktif}</div>
+        <p style="font-size:13px;color:var(--gray-600);margin-bottom:18px;line-height:1.6">Menutup tahun anggaran akan mengarsip seluruh data RPD, uraian kegiatan, dan surat pengajuan, lalu mereset data aktif menjadi kosong untuk tahun baru.</p>
+        <button class="btn danger-outline" onclick="konfirmasiTutupTahun(${tahunAktif})">🔒 Tutup Tahun Anggaran ${tahunAktif}</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ct">Daftar Arsip</div>
+      <div style="padding:0 18px 18px">
+        ${arsipList.length===0
+          ?`<p style="font-size:13px;color:var(--gray-400);margin-top:8px">Belum ada data yang diarsip.</p>`
+          :arsipList.map(t=>`
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--gray-100)">
+              <div>
+                <div style="font-size:15px;font-weight:700;color:var(--gray-900)">Arsip T.A. ${t}</div>
+                <div style="font-size:12px;color:var(--gray-400);margin-top:2px">Data RPD, uraian kegiatan, dan surat pengajuan</div>
+              </div>
+              <div style="display:flex;gap:8px">
+                <button class="btn sec sm" onclick="navTo('admin-arsip-${t}')">Lihat Detail →</button>
+                <button class="btn sm danger-outline" onclick="konfirmasiHapusArsip('${t}')">Hapus</button>
+              </div>
+            </div>`).join('')}
+      </div>
+    </div>`;
+}
+
+function konfirmasiTutupTahun(tahun){
+  showConfirm({
+    icon:'🔒',
+    title:`Tutup Tahun Anggaran ${tahun}?`,
+    msg:`Semua data RPD, uraian, dan surat pengajuan tahun ${tahun} akan diarsip. Data aktif akan direset kosong. Tidak bisa dibatalkan.`,
+    okLabel:'Ya, Arsip & Reset',
+    okClass:'danger-outline',
+    onOk:()=>tutupTahunAnggaran(tahun)
+  });
+}
+window.konfirmasiTutupTahun=konfirmasiTutupTahun;
+
+async function tutupTahunAnggaran(tahun){
+  try{
+    // Simpan meta
+    await setDoc(doc(db,'arsip_meta',String(tahun)),{tahun,arsipAt:new Date().toISOString()});
+
+    // Arsip & hapus uraian
+    const uraianSnap=await getDocs(collection(db,'uraian'));
+    if(!uraianSnap.empty){
+      const b=writeBatch(db);
+      uraianSnap.forEach(d=>{b.set(doc(db,'arsip',`${tahun}_uraian_${d.id}`),{...d.data(),tahun});b.delete(d.ref);});
+      await b.commit();
+    }
+    // Arsip & hapus rpd
+    const rpdSnap=await getDocs(collection(db,'rpd'));
+    if(!rpdSnap.empty){
+      const b=writeBatch(db);
+      rpdSnap.forEach(d=>{b.set(doc(db,'arsip',`${tahun}_rpd_${d.id}`),{...d.data(),tahun});b.delete(d.ref);});
+      await b.commit();
+    }
+    // Arsip & hapus surat
+    const suratSnap=await getDocs(collection(db,'surat'));
+    if(!suratSnap.empty){
+      const b=writeBatch(db);
+      suratSnap.forEach(d=>{b.set(doc(db,'arsip',`${tahun}_surat_${d.id}`),{...d.data(),tahun});b.delete(d.ref);});
+      await b.commit();
+    }
+    // Reset cache lokal
+    UNIT_KEYS.forEach(k=>{DB.uraian[k]=[];DB.rpd[k]={};});
+    DB.surat=[];
+    showNotif('ok','Berhasil','Tahun anggaran '+tahun+' berhasil diarsip. Data aktif telah direset.');
+    renderAdminTahun();
+  }catch(e){
+    showNotif('err','Gagal','Terjadi kesalahan: '+e.message);
+  }
+}
+
+function konfirmasiHapusArsip(tahun){
+  showConfirm({
+    icon:'🗑️',
+    title:`Hapus Arsip T.A. ${tahun}?`,
+    msg:`Seluruh data arsip tahun ${tahun} akan dihapus permanen dari database. Tidak bisa dikembalikan.`,
+    okLabel:'Ya, Hapus Permanen',
+    okClass:'danger-outline',
+    onOk:()=>hapusArsip(tahun)
+  });
+}
+window.konfirmasiHapusArsip=konfirmasiHapusArsip;
+
+async function hapusArsip(tahun){
+  try{
+    const snap=await getDocs(collection(db,'arsip'));
+    const toDelete=[];
+    snap.forEach(d=>{if(String(d.data().tahun)===String(tahun))toDelete.push(d.ref);});
+    // hapus per batch 500
+    for(let i=0;i<toDelete.length;i+=400){
+      const b=writeBatch(db);
+      toDelete.slice(i,i+400).forEach(r=>b.delete(r));
+      await b.commit();
+    }
+    await deleteDoc(doc(db,'arsip_meta',String(tahun)));
+    showNotif('ok','Arsip Dihapus','Arsip T.A. '+tahun+' berhasil dihapus.');
+    renderAdminTahun();
+  }catch(e){
+    showNotif('err','Gagal','Gagal menghapus arsip: '+e.message);
+  }
+}
+
+async function renderAdminArsipDetail(tahun){
+  document.getElementById('admin-arsip-h1').textContent='Arsip T.A. '+tahun;
+  document.getElementById('admin-arsip-sub').textContent='Data lengkap tahun anggaran '+tahun;
+  const el=document.getElementById('admin-arsip-content');
+  el.innerHTML=`<div style="font-size:13px;color:var(--gray-400)">Memuat arsip ${tahun}...</div>`;
+  try{
+    const snap=await getDocs(collection(db,'arsip'));
+    const uraianMap={},rpdMap={},suratList=[];
+    snap.forEach(d=>{
+      const data=d.data();
+      if(String(data.tahun)!==String(tahun))return;
+      const id=d.id;
+      if(id.startsWith(`${tahun}_uraian_`)){
+        if(!uraianMap[data.unitKey])uraianMap[data.unitKey]=[];
+        uraianMap[data.unitKey].push(data);
+      } else if(id.startsWith(`${tahun}_rpd_`)){
+        if(!rpdMap[data.unitKey])rpdMap[data.unitKey]={};
+        rpdMap[data.unitKey][data.uraianId]=data.bulan||Array(12).fill(0);
+      } else if(id.startsWith(`${tahun}_surat_`)){
+        suratList.push(data);
+      }
+    });
+    let html='';
+    UNIT_KEYS.forEach(k=>{
+      const list=uraianMap[k]||[];
+      if(!list.length)return;
+      const totalA=list.reduce((s,u)=>s+u.anggaran,0);
+      const totalR=list.reduce((s,u)=>s+(rpdMap[k]?.[u.id]||Array(12).fill(0)).reduce((a,b)=>a+b,0),0);
+      html+=`<div class="card">
+        <div class="ct">${USERS[k]?.label||k}
+          <span class="pill b-blue" style="margin-left:8px">Pagu: ${rp(totalA)}</span>
+          <span class="pill b-green" style="margin-left:4px">RPD: ${rp(totalR)}</span>
+        </div>
+        <div class="tw"><table>
+          <thead><tr><th>Uraian Kegiatan</th><th class="tr">Pagu (Rp)</th><th class="tr">Total RPD (Rp)</th><th class="tr">Sisa (Rp)</th></tr></thead>
+          <tbody>${list.map(u=>{
+            const b=(rpdMap[k]?.[u.id]||Array(12).fill(0));
+            const tr=b.reduce((a,x)=>a+x,0);
+            const sisa=u.anggaran-tr;
+            return`<tr><td>${u.nama}</td><td class="tr money">${rp(u.anggaran)}</td><td class="tr money">${rp(tr)}</td><td class="tr money" style="color:${sisa<0?'var(--red-dark)':'inherit'}">${rp(sisa)}</td></tr>`;
+          }).join('')}</tbody>
+        </table></div>
+      </div>`;
+    });
+    if(suratList.length){
+      html+=`<div class="card"><div class="ct">Surat Pengajuan</div>
+        <div class="tw"><table>
+          <thead><tr><th>Unit</th><th>No. Surat</th><th>Nama Pengaju</th><th class="tr">Jumlah (Rp)</th><th>Tanggal</th></tr></thead>
+          <tbody>${suratList.map(s=>`<tr><td>${USERS[s.unitKey]?.label||s.unitKey}</td><td>${s.no||'—'}</td><td>${s.nama}</td><td class="tr money">${rp(s.jumlah)}</td><td>${s.tgl}</td></tr>`).join('')}</tbody>
+        </table></div>
+      </div>`;
+    }
+    el.innerHTML=html||`<p style="font-size:13px;color:var(--gray-400)">Tidak ada data untuk tahun ini.</p>`;
+  }catch(e){
+    el.innerHTML=`<div class="ibox err">Gagal memuat arsip: ${e.message}</div>`;
+  }
+}
+
+// ================================================================
+// SUBDIT — ARSIP
+// ================================================================
+async function renderArsip(){
+  const el=document.getElementById('arsip-content');
+  el.innerHTML=`<div style="font-size:13px;color:var(--gray-400)">Memuat arsip...</div>`;
+  const k=CU.key;
+  try{
+    const metaSnap=await getDocs(collection(db,'arsip_meta'));
+    const tahunList=[];
+    metaSnap.forEach(d=>tahunList.push(d.id));
+    tahunList.sort().reverse();
+    if(!tahunList.length){
+      el.innerHTML=`<div class="card"><div style="padding:18px;font-size:13px;color:var(--gray-400)">Belum ada data arsip.</div></div>`;
+      return;
+    }
+    const snap=await getDocs(collection(db,'arsip'));
+    const byTahun={};
+    snap.forEach(d=>{
+      const data=d.data();
+      const t=String(data.tahun);
+      if(!byTahun[t])byTahun[t]={uraian:[],rpd:{},surat:[]};
+      const id=d.id;
+      if(id.includes('_uraian_')&&data.unitKey===k) byTahun[t].uraian.push(data);
+      else if(id.includes('_rpd_')&&data.unitKey===k) byTahun[t].rpd[data.uraianId]=data.bulan||Array(12).fill(0);
+      else if(id.includes('_surat_')&&data.unitKey===k) byTahun[t].surat.push(data);
+    });
+    let html='';
+    tahunList.forEach(tahun=>{
+      const d=byTahun[tahun]||{uraian:[],rpd:{},surat:[]};
+      const totalA=d.uraian.reduce((s,u)=>s+u.anggaran,0);
+      const totalR=d.uraian.reduce((s,u)=>s+(d.rpd[u.id]||Array(12).fill(0)).reduce((a,b)=>a+b,0),0);
+      html+=`<div class="card">
+        <div class="ct">Arsip T.A. ${tahun}
+          <span class="pill b-blue" style="margin-left:8px">Pagu: ${rp(totalA)}</span>
+          <span class="pill b-green" style="margin-left:4px">RPD: ${rp(totalR)}</span>
+        </div>
+        ${d.uraian.length?`<div class="tw"><table>
+          <thead><tr><th>Uraian Kegiatan</th><th class="tr">Pagu (Rp)</th>${M3.map(m=>`<th class="tr">${m}</th>`).join('')}<th class="tr">Total RPD</th></tr></thead>
+          <tbody>${d.uraian.map(u=>{
+            const bulan=d.rpd[u.id]||Array(12).fill(0);
+            const tr=bulan.reduce((a,b)=>a+b,0);
+            return`<tr><td>${u.nama}</td><td class="tr money">${rp(u.anggaran)}</td>${bulan.map(b=>`<td class="tr money">${b?rp(b):'—'}</td>`).join('')}<td class="tr money">${rp(tr)}</td></tr>`;
+          }).join('')}</tbody>
+        </table></div>`:`<div style="padding:0 18px 14px;font-size:12px;color:var(--gray-400)">Tidak ada uraian.</div>`}
+        ${d.surat.length?`<div style="padding:0 18px 14px">
+          <div style="font-size:11px;font-weight:700;color:var(--gray-400);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Surat Pengajuan</div>
+          <table style="width:100%;font-size:12px;border-collapse:collapse">
+            <thead><tr style="background:var(--gray-50)">
+              <th style="padding:6px 8px;text-align:left">No. Surat</th>
+              <th style="padding:6px 8px;text-align:left">Nama Pengaju</th>
+              <th style="padding:6px 8px;text-align:right">Jumlah (Rp)</th>
+              <th style="padding:6px 8px;text-align:left">Tanggal</th>
+            </tr></thead>
+            <tbody>${d.surat.map(s=>`<tr style="border-top:1px solid var(--gray-100)">
+              <td style="padding:6px 8px">${s.no||'—'}</td>
+              <td style="padding:6px 8px">${s.nama}</td>
+              <td style="padding:6px 8px;text-align:right" class="money">${rp(s.jumlah)}</td>
+              <td style="padding:6px 8px">${s.tgl}</td>
+            </tr>`).join('')}</tbody>
+          </table>
+        </div>`:''}
+      </div>`;
+    });
+    el.innerHTML=html;
+  }catch(e){
+    el.innerHTML=`<div class="ibox err">Gagal memuat arsip: ${e.message}</div>`;
+  }
+}
 
 // ================================================================
 // MODAL UTILS
