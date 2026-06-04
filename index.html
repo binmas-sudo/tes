@@ -482,6 +482,9 @@ let SC = null;
 // LOAD ALL DATA FROM FIREBASE
 // ================================================================
 async function loadAllData(){
+  // Inisialisasi semua unit key agar selalu ada meski Firebase kosong
+  UNIT_KEYS.forEach(k=>{ DB.uraian[k]=[]; DB.rpd[k]={}; });
+
   // accounts
   const accSnap = await getDocs(collection(db,'accounts'));
   accSnap.forEach(d => { DB.accounts[d.id] = d.data(); });
@@ -912,7 +915,7 @@ function buildRekapHTML(k){
 // ================================================================
 function renderAdminKelola(){
   let html=`<p style="font-size:12px;color:var(--gray-400);margin-bottom:18px">Edit nama uraian dan alokasi dana, klik Simpan per baris.</p>`;
-  unitKeys().forEach(k=>{
+  UNIT_KEYS.forEach(k=>{
     const label=USERS[k]?.label||k;
     const total=totalAngg(k);
     html+=`<div class="card">
