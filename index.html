@@ -218,6 +218,14 @@ tfoot td.tr{text-align:right}
 .ntag.warn{background:var(--warn-bg);color:var(--warn-text)}
 .ntag.err{background:var(--red-bg);color:var(--red-dark)}
 
+/* CONFIRM DIALOG */
+.cbox{background:var(--white);border-radius:var(--radius-lg);padding:28px 28px 22px;width:360px;max-width:95vw;box-shadow:0 20px 60px rgba(0,0,0,.25);text-align:center}
+.cbox .cicon{font-size:32px;margin-bottom:10px}
+.cbox .ctitle{font-size:15px;font-weight:700;color:var(--gray-900);margin-bottom:6px}
+.cbox .cmsg{font-size:13px;color:var(--gray-600);line-height:1.5;margin-bottom:22px}
+.cbox .cbtn-row{display:flex;gap:8px;justify-content:center}
+.cbox .cbtn-row .btn{min-width:100px;justify-content:center}
+
 /* AKUN CARDS */
 .akun-list{display:flex;flex-direction:column;gap:12px}
 .akun-card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:18px 20px}
@@ -377,6 +385,19 @@ tfoot td.tr{text-align:right}
   </div>
 </div>
 
+<!-- CONFIRM DIALOG -->
+<div class="mov" id="mod-confirm">
+  <div class="cbox">
+    <div class="cicon" id="confirm-icon">⚠️</div>
+    <div class="ctitle" id="confirm-title">Konfirmasi</div>
+    <p class="cmsg" id="confirm-msg">Apakah kamu yakin?</p>
+    <div class="cbtn-row">
+      <button class="btn sec" onclick="closeModal('mod-confirm')">Batal</button>
+      <button class="btn pri" id="confirm-ok-btn">Ya, Lanjutkan</button>
+    </div>
+  </div>
+</div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import {
@@ -404,6 +425,20 @@ const db = getFirestore(app);
 async function sha256(str){
   const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(str));
   return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+// ================================================================
+// CONFIRM DIALOG
+// ================================================================
+function showConfirm({icon='⚠️', title='Konfirmasi', msg='Apakah kamu yakin?', okLabel='Ya, Lanjutkan', okClass='pri', onOk}){
+  document.getElementById('confirm-icon').textContent=icon;
+  document.getElementById('confirm-title').textContent=title;
+  document.getElementById('confirm-msg').textContent=msg;
+  const btn=document.getElementById('confirm-ok-btn');
+  btn.textContent=okLabel;
+  btn.className='btn '+okClass;
+  btn.onclick=()=>{ closeModal('mod-confirm'); onOk(); };
+  openModal('mod-confirm');
 }
 
 // ================================================================
@@ -518,13 +553,22 @@ function showErr(msg){
 }
 
 function doLogout(){
-  CU=null;
-  document.getElementById('login-page').style.display='flex';
-  document.getElementById('app').style.display='none';
-  document.getElementById('lu').value='';
-  document.getElementById('lp').value='';
-  document.getElementById('role-select').value='';
-  document.getElementById('lerr').style.display='none';
+  showConfirm({
+    icon:'🚪',
+    title:'Keluar Aplikasi',
+    msg:'Kamu akan keluar dari aplikasi. Pastikan semua data sudah tersimpan.',
+    okLabel:'Ya, Keluar',
+    okClass:'danger-outline',
+    onOk:()=>{
+      CU=null;
+      document.getElementById('login-page').style.display='flex';
+      document.getElementById('app').style.display='none';
+      document.getElementById('lu').value='';
+      document.getElementById('lp').value='';
+      document.getElementById('role-select').value='';
+      document.getElementById('lerr').style.display='none';
+    }
+  });
 }
 window.doLogout=doLogout;
 
@@ -919,17 +963,26 @@ async function addUraian(k){
 }
 window.addUraian=addUraian;
 
-async function delUraian(k,id){
-  if(!confirm('Hapus uraian ini beserta semua data RPD-nya?'))return;
-  DB.uraian[k]=DB.uraian[k].filter(x=>x.id!=id);
-  if(DB.rpd[k])delete DB.rpd[k][id];
-  try{
-    await deleteDoc(doc(db,'uraian',`${k}_${id}`));
-    await deleteDoc(doc(db,'rpd',`${k}_${id}`));
-  }catch(e){}
-  document.getElementById('ue-'+k).innerHTML=buildUE(k);
-  const pill=document.getElementById('pill-'+k);
-  if(pill)pill.textContent=rp(totalAngg(k));
+function delUraian(k,id){
+  const u=DB.uraian[k]?.find(x=>x.id==id);
+  showConfirm({
+    icon:'🗑️',
+    title:'Hapus Uraian?',
+    msg:`"${u?.nama||'Uraian ini'}" akan dihapus beserta semua data RPD-nya. Tindakan ini tidak bisa dibatalkan.`,
+    okLabel:'Ya, Hapus',
+    okClass:'danger-outline',
+    onOk: async ()=>{
+      DB.uraian[k]=DB.uraian[k].filter(x=>x.id!=id);
+      if(DB.rpd[k])delete DB.rpd[k][id];
+      try{
+        await deleteDoc(doc(db,'uraian',`${k}_${id}`));
+        await deleteDoc(doc(db,'rpd',`${k}_${id}`));
+      }catch(e){}
+      document.getElementById('ue-'+k).innerHTML=buildUE(k);
+      const pill=document.getElementById('pill-'+k);
+      if(pill)pill.textContent=rp(totalAngg(k));
+    }
+  });
 }
 window.delUraian=delUraian;
 
@@ -978,7 +1031,10 @@ function renderAdminAkun(){
       <div class="akun-label">${u.label}</div>
       <div class="akun-fields">
         <div class="akun-field"><label>Username</label><input id="acc-usr-${u.key}" type="text" value="${acc.username}" autocomplete="off"></div>
-        <div class="akun-field"><label>Password</label><input id="acc-pwd-${u.key}" type="password" value="${acc.password}" autocomplete="off"></div>
+        <div class="akun-field">
+          <label>Password Baru <span style="font-weight:400;text-transform:none">(kosongkan jika tidak diubah)</span></label>
+          <input id="acc-pwd-${u.key}" type="password" placeholder="Isi untuk ganti password" autocomplete="off">
+        </div>
         <button class="btn pri" onclick="saveAkun('${u.key}')">Simpan</button>
       </div>
     </div>`;
@@ -990,32 +1046,49 @@ function renderAdminAkun(){
     <div class="akun-list">${subCards}</div>`;
 }
 
-async function saveAkunAdmin(){
+function saveAkunAdmin(){
   const usr=document.getElementById('acc-usr-admin')?.value.trim();
   const pwd=document.getElementById('acc-pwd-admin')?.value;
   if(!usr){showNotif('err','Gagal','Username tidak boleh kosong.');return;}
-  const oldPwd=DB.accounts['admin']?.password||'';
-  const hashedPwd=pwd ? await sha256(pwd) : oldPwd;
-  DB.accounts['admin']={username:usr,password:hashedPwd};
-  try{
-    await setDoc(doc(db,'accounts','admin'),DB.accounts['admin']);
-    document.getElementById('acc-pwd-admin').value='';
-    showNotif('ok','Akun Diperbarui','Akun Operator Perencanaan Renmin berhasil disimpan.');
-  }catch(e){showNotif('err','Gagal','Gagal menyimpan ke server.');}
+  showConfirm({
+    icon:'🔐',
+    title:'Simpan Akun Admin?',
+    msg:'Username dan password Operator Perencanaan Renmin akan diperbarui.',
+    okLabel:'Ya, Simpan',
+    onOk: async ()=>{
+      const oldPwd=DB.accounts['admin']?.password||'';
+      const hashedPwd=pwd ? await sha256(pwd) : oldPwd;
+      DB.accounts['admin']={username:usr,password:hashedPwd};
+      try{
+        await setDoc(doc(db,'accounts','admin'),DB.accounts['admin']);
+        document.getElementById('acc-pwd-admin').value='';
+        showNotif('ok','Akun Diperbarui','Akun Operator Perencanaan Renmin berhasil disimpan.');
+      }catch(e){showNotif('err','Gagal','Gagal menyimpan ke server.');}
+    }
+  });
 }
 window.saveAkunAdmin=saveAkunAdmin;
 
-async function saveAkun(key){
+function saveAkun(key){
   const usr=document.getElementById('acc-usr-'+key)?.value.trim();
   const pwd=document.getElementById('acc-pwd-'+key)?.value.trim();
-  if(!usr||!pwd){showNotif('err','Gagal','Username dan password tidak boleh kosong.');return;}
-  const hashedPwd=await sha256(pwd);
-  DB.accounts[key]={username:usr,password:hashedPwd};
-  try{
-    await setDoc(doc(db,'accounts',key),{username:usr,password:hashedPwd});
-    document.getElementById('acc-pwd-'+key).value='';
-    showNotif('ok','Akun Diperbarui','Username dan password '+USERS[key]?.label+' berhasil disimpan.');
-  }catch(e){showNotif('err','Gagal','Gagal menyimpan ke server.');}
+  if(!usr){showNotif('err','Gagal','Username tidak boleh kosong.');return;}
+  showConfirm({
+    icon:'🔐',
+    title:'Simpan Akun '+USERS[key]?.label+'?',
+    msg:'Username dan password untuk unit ini akan diperbarui.',
+    okLabel:'Ya, Simpan',
+    onOk: async ()=>{
+      const oldPwd=DB.accounts[key]?.password||'';
+      const hashedPwd=pwd ? await sha256(pwd) : oldPwd;
+      DB.accounts[key]={username:usr,password:hashedPwd};
+      try{
+        await setDoc(doc(db,'accounts',key),{username:usr,password:hashedPwd});
+        document.getElementById('acc-pwd-'+key).value='';
+        showNotif('ok','Akun Diperbarui','Username dan password '+USERS[key]?.label+' berhasil disimpan.');
+      }catch(e){showNotif('err','Gagal','Gagal menyimpan ke server.');}
+    }
+  });
 }
 window.saveAkun=saveAkun;
 
