@@ -30,7 +30,7 @@ body{font-family:var(--font);background:var(--gray-50);color:var(--gray-900);fon
 #login-page{display:flex;min-height:100vh;align-items:center;justify-content:center;background:var(--gray-50)}
 .lbox{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:36px 40px;width:400px;max-width:95vw;box-shadow:var(--shadow)}
 .llogo{display:flex;align-items:center;gap:12px;margin-bottom:6px}
-.lemblem{width:52px;height:52px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;box-shadow:0 0 0 3px rgba(255,255,255,0.9),0 2px 8px rgba(0,0,0,0.15)}
+.lemblem{width:52px;height:52px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .lemblem svg{width:24px;height:24px;fill:white}
 .llogo h1{font-size:15px;font-weight:700;color:var(--blue-dark);line-height:1.3}
 .llogo p{font-size:11px;color:var(--gray-400);margin-top:1px}
@@ -54,7 +54,7 @@ body{font-family:var(--font);background:var(--gray-50);color:var(--gray-900);fon
 /* HEADER */
 header{background:var(--blue-dark);color:#fff;height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;position:sticky;top:0;z-index:300;border-bottom:2px solid var(--blue-mid)}
 .hl{display:flex;align-items:center;gap:10px}
-.hemblem{width:34px;height:34px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;box-shadow:0 0 0 2px rgba(255,255,255,0.5)}
+.hemblem{width:34px;height:34px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .hemblem svg{width:17px;height:17px;fill:var(--blue-dark)}
 .htitle{font-size:14px;font-weight:700;line-height:1.2}
 .hsub{font-size:10px;color:rgba(255,255,255,.5);margin-top:1px}
@@ -302,7 +302,7 @@ tfoot td.tr{text-align:right}
   <div class="lbox">
     <div class="llogo">
       <div class="lemblem">
-        <img src="logo.png" alt="Logo" style="width:48px;height:48px;object-fit:contain">
+        <img src="logo.png" alt="Logo" style="width:48px;height:48px;object-fit:contain;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.35))">
       </div>
       <div>
         <h1>Web Anggaran Ditbinmas<br>Polda Aceh</h1>
@@ -345,7 +345,7 @@ tfoot td.tr{text-align:right}
     </button>
     <div class="hl">
       <div class="hemblem">
-        <img src="logo.png" alt="Logo" style="width:32px;height:32px;object-fit:contain">
+        <img src="logo.png" alt="Logo" style="width:32px;height:32px;object-fit:contain;filter:drop-shadow(0 1px 4px rgba(0,0,0,0.4))">
       </div>
       <div>
         <div class="htitle">Web Anggaran Ditbinmas</div>
