@@ -30,7 +30,7 @@ body{font-family:var(--font);background:var(--gray-50);color:var(--gray-900);fon
 #login-page{display:flex;min-height:100vh;align-items:center;justify-content:center;background:var(--gray-50)}
 .lbox{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:36px 40px;width:400px;max-width:95vw;box-shadow:var(--shadow)}
 .llogo{display:flex;align-items:center;gap:12px;margin-bottom:6px}
-.lemblem{width:44px;height:44px;background:var(--blue);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.lemblem{width:44px;height:44px;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden}
 .lemblem svg{width:24px;height:24px;fill:white}
 .llogo h1{font-size:15px;font-weight:700;color:var(--blue-dark);line-height:1.3}
 .llogo p{font-size:11px;color:var(--gray-400);margin-top:1px}
@@ -54,7 +54,7 @@ body{font-family:var(--font);background:var(--gray-50);color:var(--gray-900);fon
 /* HEADER */
 header{background:var(--blue-dark);color:#fff;height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;position:sticky;top:0;z-index:300;border-bottom:2px solid var(--blue-mid)}
 .hl{display:flex;align-items:center;gap:10px}
-.hemblem{width:30px;height:30px;background:#fff;border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.hemblem{width:30px;height:30px;border-radius:5px;display:flex;align-items:center;justify-content:center;overflow:hidden}
 .hemblem svg{width:17px;height:17px;fill:var(--blue-dark)}
 .htitle{font-size:14px;font-weight:700;line-height:1.2}
 .hsub{font-size:10px;color:rgba(255,255,255,.5);margin-top:1px}
@@ -78,24 +78,69 @@ main{flex:1;padding:22px;overflow-x:hidden;min-width:0}
 .ph h1{font-size:18px;font-weight:700;color:var(--gray-900)}
 .ph p{font-size:12px;color:var(--gray-400);margin-top:3px}
 
+/* HAMBURGER — hidden by default, shown on mobile */
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:8px 10px;border:none;background:none;border-radius:6px;flex-shrink:0;margin-right:4px;align-items:center;justify-content:center}
+.hamburger span{display:block;width:22px;height:2.5px;background:#fff;border-radius:2px;transition:all .25s}
+.hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.hamburger.open span:nth-child(2){opacity:0;transform:scaleX(0)}
+.hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+
 /* MOBILE */
 @media(max-width:680px){
-  .app-body{flex-direction:column}
-  .sidenav{width:100%;height:auto;position:sticky;top:52px;z-index:200;border-right:none;border-bottom:2px solid var(--gray-200);padding:0;display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
-  .sidenav::-webkit-scrollbar{display:none}
-  .sidenav .snlbl{display:none}
-  .sidenav a{display:inline-flex;flex-direction:row;align-items:center;gap:6px;padding:12px 16px;border-left:none;border-bottom:3px solid transparent;font-size:12px;flex-shrink:0;border-radius:0}
-  .sidenav a.active{background:var(--blue-light);border-bottom-color:var(--blue);border-left:none}
-  main{padding:14px}
-  .stats-row{grid-template-columns:1fr 1fr}
-  .twl-grid{grid-template-columns:1fr 1fr}
-  .mrow{grid-template-columns:1fr}
+  .hamburger{display:flex !important}
+  header{padding:0 14px;gap:0}
+  .hl{flex:1;gap:8px}
+  .hemblem{display:none}
+  .htitle{font-size:13px;font-weight:700}
   .hsub{display:none}
-  .htitle{font-size:13px}
+  .hr .utag{display:none}
+  .hr .btn-out{font-size:11px;padding:4px 10px}
+  .sidenav{display:none !important}
+  .app-body{flex-direction:column}
+  main{padding:12px}
+  .stats-row{grid-template-columns:1fr 1fr;gap:8px}
+  .sc{padding:10px 12px}
+  .sc .val{font-size:16px}
+  .sc .lbl{font-size:9px}
+  .sc .sub{font-size:10px}
+  .twl-grid{grid-template-columns:1fr 1fr;gap:8px}
+  .twlc{padding:10px}
+  .twlc .tv{font-size:16px}
+  .mrow{grid-template-columns:1fr}
+  .modal{padding:18px;border-radius:12px 12px 0 0;margin-top:auto;width:100%;max-width:100%;max-height:92vh}
+  .mov{align-items:flex-end;padding:0}
+  .ph{margin-bottom:14px;padding-bottom:10px}
+  .ph h1{font-size:15px}
+  .ph p{font-size:11px}
+  .card{padding:14px;border-radius:8px;margin-bottom:12px}
+  .ct{font-size:13px;margin-bottom:12px}
+  .ue-row{grid-template-columns:1fr;gap:6px}
+  .ue-header{display:none}
+  .ue-actions{justify-content:flex-end}
+  .akun-fields{grid-template-columns:1fr;gap:8px}
+  .akun-fields .btn{width:100%}
 }
+.drawer-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:400;opacity:0;transition:opacity .25s}
+.drawer-overlay.open{display:block;opacity:1}
+
+/* DRAWER NAV */
+.drawer{position:fixed;top:0;left:0;height:100%;width:280px;max-width:80vw;background:var(--white);z-index:401;transform:translateX(-100%);transition:transform .28s cubic-bezier(.4,0,.2,1);box-shadow:4px 0 24px rgba(0,0,0,.15);display:flex;flex-direction:column}
+.drawer.open{transform:translateX(0)}
+.drawer-header{background:var(--blue-dark);padding:20px 18px 16px;flex-shrink:0}
+.drawer-header .d-title{font-size:14px;font-weight:700;color:#fff;line-height:1.3}
+.drawer-header .d-role{font-size:11px;color:rgba(255,255,255,.6);margin-top:3px;display:flex;align-items:center;gap:5px}
+.drawer-header .d-dot{width:6px;height:6px;border-radius:50%;background:#4ade80;flex-shrink:0}
+.drawer-body{flex:1;overflow-y:auto;padding:8px 0}
+.drawer-lbl{font-size:10px;font-weight:700;color:var(--gray-400);letter-spacing:1px;text-transform:uppercase;padding:14px 18px 5px}
+.drawer a{display:flex;align-items:center;gap:10px;padding:11px 18px;color:var(--gray-700);text-decoration:none;font-size:13px;font-weight:500;transition:all .12s;border-left:3px solid transparent}
+.drawer a:hover{background:var(--gray-50);color:var(--blue)}
+.drawer a.active{background:var(--blue-light);color:var(--blue);border-left-color:var(--blue);font-weight:600}
+.drawer-footer{padding:14px 18px;border-top:1px solid var(--gray-100);flex-shrink:0}
+.drawer-footer .btn-out-drawer{width:100%;padding:10px;border:1px solid var(--gray-200);background:var(--white);color:var(--red-dark);border-radius:var(--radius);font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;text-align:center}
+.drawer-footer .btn-out-drawer:hover{background:var(--red-bg);border-color:var(--red-border)}
 
 /* CARDS */
-.card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:22px;margin-bottom:18px;overflow:visible}
+.card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:22px;margin-bottom:18px;overflow:hidden}
 .ct{font-size:14px;font-weight:700;color:var(--gray-900);margin-bottom:16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .pill{font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;background:var(--blue-light);color:var(--blue)}
 
@@ -140,7 +185,7 @@ tfoot td.tr{text-align:right}
 
 /* TRIWULAN */
 .twl-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-.twlc{border:1px solid var(--gray-200);border-radius:var(--radius);padding:14px;text-align:center;background:var(--white)}
+.twlc{border:1px solid var(--gray-200);border-radius:var(--radius);padding:14px;text-align:center;background:var(--white);min-width:0}
 .twlc .tl{font-size:10px;color:var(--gray-400);font-weight:700;text-transform:uppercase;letter-spacing:.4px}
 .twlc .tv{font-size:20px;font-weight:700;color:var(--blue);margin:6px 0 4px}
 .twlc .tt{font-size:10px;color:var(--gray-400);margin-top:3px}
@@ -257,7 +302,7 @@ tfoot td.tr{text-align:right}
   <div class="lbox">
     <div class="llogo">
       <div class="lemblem">
-        <svg viewBox="0 0 24 24"><path d="M12 2L3 7v10l9 5 9-5V7L12 2zm0 2.18L19 8v8l-7 3.82L5 16V8l7-3.82zM12 6a4 4 0 100 8 4 4 0 000-8zm0 2a2 2 0 110 4 2 2 0 010-4z"/></svg>
+        <img src="logo.png" alt="Logo" style="width:44px;height:44px;object-fit:contain">
       </div>
       <div>
         <h1>Web Anggaran Ditbinmas<br>Polda Aceh</h1>
@@ -295,9 +340,12 @@ tfoot td.tr{text-align:right}
 <!-- APP -->
 <div id="app">
   <header>
+    <button class="hamburger" id="hamburger-btn" onclick="toggleDrawer()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
     <div class="hl">
       <div class="hemblem">
-        <svg viewBox="0 0 24 24"><path d="M12 2L3 7v10l9 5 9-5V7L12 2zm0 2.18L19 8v8l-7 3.82L5 16V8l7-3.82zM12 6a4 4 0 100 8 4 4 0 000-8zm0 2a2 2 0 110 4 2 2 0 010-4z"/></svg>
+        <img src="logo.png" alt="Logo" style="width:28px;height:28px;object-fit:contain">
       </div>
       <div>
         <div class="htitle">Web Anggaran Ditbinmas</div>
@@ -358,6 +406,24 @@ tfoot td.tr{text-align:right}
   </div>
 </div>
 
+<!-- DRAWER OVERLAY -->
+<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+
+<!-- DRAWER NAV -->
+<div class="drawer" id="drawer-nav">
+  <div class="drawer-header">
+    <div class="d-title">Web Anggaran Ditbinmas<br>Polda Aceh</div>
+    <div class="d-role"><span class="d-dot"></span><span id="drawer-role">-</span></div>
+  </div>
+  <div class="drawer-body">
+    <div class="drawer-lbl">Menu</div>
+    <div id="drawer-links"></div>
+  </div>
+  <div class="drawer-footer">
+    <button class="btn-out-drawer" onclick="doLogout()">⏻ Keluar</button>
+  </div>
+</div>
+
 <!-- MODAL PENGAJUAN -->
 <div class="mov" id="mod-surat">
   <div class="modal">
@@ -387,7 +453,7 @@ tfoot td.tr{text-align:right}
     <div class="mfg"><label>Keperluan / Catatan</label><textarea id="ms-cat" placeholder="Keterangan keperluan penggunaan dana..."></textarea></div>
     <div class="mfooter">
       <button class="btn sec" onclick="closeModal('mod-surat')">Batal</button>
-      <button class="btn pri" onclick="submitSurat()">💾 Simpan &amp; Download Surat</button>
+      <button class="btn pri" onclick="submitSurat()">Simpan &amp; Download Surat</button>
     </div>
   </div>
 </div>
@@ -405,7 +471,7 @@ tfoot td.tr{text-align:right}
 <!-- CONFIRM DIALOG -->
 <div class="mov" id="mod-confirm">
   <div class="cbox">
-    <div class="cicon" id="confirm-icon">⚠️</div>
+    <div class="cicon" id="confirm-icon">!</div>
     <div class="ctitle" id="confirm-title">Konfirmasi</div>
     <p class="cmsg" id="confirm-msg">Apakah kamu yakin?</p>
     <div class="cbtn-row">
@@ -447,7 +513,7 @@ async function sha256(str){
 // ================================================================
 // CONFIRM DIALOG
 // ================================================================
-function showConfirm({icon='⚠️', title='Konfirmasi', msg='Apakah kamu yakin?', okLabel='Ya, Lanjutkan', okClass='pri', onOk}){
+function showConfirm({icon='!', title='Konfirmasi', msg='Apakah kamu yakin?', okLabel='Ya, Lanjutkan', okClass='pri', onOk}){
   document.getElementById('confirm-icon').textContent=icon;
   document.getElementById('confirm-title').textContent=title;
   document.getElementById('confirm-msg').textContent=msg;
@@ -553,6 +619,7 @@ async function doLogin(){
     }
     CU={role,key:role,label:USERS[role]?.label||role};
     document.getElementById('hdr-role').textContent=CU.label;
+    document.getElementById('drawer-role').textContent=CU.label;
     document.getElementById('login-page').style.display='none';
     document.getElementById('app').style.display='flex';
     buildNav();
@@ -571,7 +638,7 @@ function showErr(msg){
 
 function doLogout(){
   showConfirm({
-    icon:'🚪',
+    icon:'',
     title:'Keluar Aplikasi',
     msg:'Kamu akan keluar dari aplikasi. Pastikan semua data sudah tersimpan.',
     okLabel:'Ya, Keluar',
@@ -590,6 +657,26 @@ function doLogout(){
 window.doLogout=doLogout;
 
 // ================================================================
+// DRAWER (mobile nav)
+// ================================================================
+function toggleDrawer(){
+  const d=document.getElementById('drawer-nav');
+  const o=document.getElementById('drawer-overlay');
+  const b=document.getElementById('hamburger-btn');
+  const isOpen=d.classList.contains('open');
+  if(isOpen){closeDrawer();}
+  else{d.classList.add('open');o.classList.add('open');b.classList.add('open');document.body.style.overflow='hidden';}
+}
+function closeDrawer(){
+  document.getElementById('drawer-nav').classList.remove('open');
+  document.getElementById('drawer-overlay').classList.remove('open');
+  document.getElementById('hamburger-btn').classList.remove('open');
+  document.body.style.overflow='';
+}
+window.toggleDrawer=toggleDrawer;
+window.closeDrawer=closeDrawer;
+
+// ================================================================
 // NAV
 // ================================================================
 function buildNav(){
@@ -597,40 +684,53 @@ function buildNav(){
   let items;
   if(isAdmin){
     items=[
-      {id:'dashboard',label:'Dashboard'},
-      {id:'admin-kelola',label:'Kelola Uraian & Dana'},
-      {id:'admin-rekap-binopsnal',label:'Rekap BABINOPSNAL'},
-      {id:'admin-rekap-satpam',label:'Rekap Subdit SATPAM'},
-      {id:'admin-rekap-bintibsos',label:'Rekap Subdit BINTIBSOS'},
-      {id:'admin-rekap-bhabin',label:'Rekap Subdit BHABIN'},
-      {id:'admin-rekap-binpolmas',label:'Rekap Subdit BINPOLMAS'},
-      {id:'admin-akun',label:'Kelola Akun'},
-      {id:'admin-tahun',label:'Tahun Anggaran'},
+      {id:'dashboard',              label:'Dashboard'},
+      {id:'admin-kelola',           label:'Kelola Uraian & Dana'},
+      {id:'admin-rekap-binopsnal',  label:'Rekap BABINOPSNAL'},
+      {id:'admin-rekap-satpam',     label:'Rekap Subdit SATPAM'},
+      {id:'admin-rekap-bintibsos',  label:'Rekap Subdit BINTIBSOS'},
+      {id:'admin-rekap-bhabin',     label:'Rekap Subdit BHABIN'},
+      {id:'admin-rekap-binpolmas',  label:'Rekap Subdit BINPOLMAS'},
+      {id:'admin-akun',             label:'Kelola Akun'},
+      {id:'admin-tahun',            label:'Tahun Anggaran'},
     ];
   } else {
     items=[
-      {id:'dashboard',label:'Dashboard'},
-      {id:'rpd',label:'RPD & Pengajuan'},
-      {id:'rekap',label:'Rekap'},
-      {id:'arsip',label:'Arsip'},
+      {id:'dashboard', label:'Dashboard'},
+      {id:'rpd',       label:'RPD & Pengajuan'},
+      {id:'rekap',     label:'Rekap'},
+      {id:'arsip',     label:'Arsip'},
     ];
   }
+
+  // Sidenav (desktop)
   let html='<div class="snlbl">Menu</div>';
   items.forEach(it=>{
     html+=`<a href="#" onclick="navTo('${it.id}');return false" id="sn-${it.id}">${it.label}</a>`;
   });
   document.getElementById('sidenav').innerHTML=html;
+
+  // Drawer (mobile)
+  let dhtml='';
+  items.forEach(it=>{
+    dhtml+=`<a href="#" onclick="navTo('${it.id}');closeDrawer();return false" id="dn-${it.id}">${it.label}</a>`;
+  });
+  document.getElementById('drawer-links').innerHTML=dhtml;
 }
 
 function navTo(page){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.sidenav a').forEach(a=>a.classList.remove('active'));
+  document.querySelectorAll('.sidenav a, .drawer a').forEach(a=>a.classList.remove('active'));
   const pageId=page.startsWith('admin-rekap-')?'admin-rekap':
                page.startsWith('admin-arsip-')?'admin-arsip':page;
   const pg=document.getElementById('page-'+pageId);
   if(pg)pg.classList.add('active');
   const sn=document.getElementById('sn-'+page);
   if(sn)sn.classList.add('active');
+  const dn=document.getElementById('dn-'+page);
+  if(dn)dn.classList.add('active');
+  // Scroll to top on mobile
+  window.scrollTo({top:0,behavior:'smooth'});
   if(page.startsWith('admin-rekap-')){
     renderAdminRekap(page.replace('admin-rekap-',''));
   } else if(page.startsWith('admin-arsip-')){
@@ -747,13 +847,21 @@ function renderRPD(){
   </div>
   ${over?`<div class="ibox err">Perhatian: Total RPD melebihi pagu anggaran sebesar <strong>${rp(totalR-totalA)}</strong>.</div>`:''}
   <div class="ibox info">Isi jumlah RPD per bulan. Nilai yang melebihi pagu per uraian akan otomatis direset ke 0.</div>
-  <div class="card" style="padding:0;overflow:hidden"><div class="tw"><table>
+  <div class="card" style="padding:0;overflow:hidden">
+    <div style="padding:10px 14px 0;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">
+      <span style="font-size:13px;font-weight:700;color:var(--gray-900)">Detail RPD per Bulan</span>
+      <span style="font-size:10px;color:var(--gray-400);display:flex;align-items:center;gap:4px">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        Geser kanan untuk lihat semua bulan
+      </span>
+    </div>
+    <div class="tw"><table>
     <thead><tr>
-      <th style="min-width:180px;position:sticky;left:0;z-index:2">Uraian Kegiatan</th>
-      <th class="tr" style="min-width:110px">Pagu</th>
-      ${M3.map(m=>`<th class="tr" style="min-width:88px">${m}</th>`).join('')}
-      <th class="tr" style="min-width:110px">Total RPD</th>
-      <th class="tc" style="min-width:130px">Ajukan Anggaran</th>
+      <th style="min-width:150px;position:sticky;left:0;z-index:2;background:var(--blue-dark)">Uraian Kegiatan</th>
+      <th class="tr" style="min-width:100px">Pagu</th>
+      ${M3.map(m=>`<th class="tr" style="min-width:82px">${m}</th>`).join('')}
+      <th class="tr" style="min-width:100px">Total RPD</th>
+      <th class="tc" style="min-width:120px">Ajukan</th>
     </tr></thead>
     <tbody>
     ${uraianList.map(u=>{
@@ -764,22 +872,22 @@ function renderRPD(){
       const pengList=DB.surat.filter(s=>s.unitKey===k&&s.uraianId===u.id);
       const chips=pengList.map(s=>`<span class="badge b-blue" title="${s.nama} — ${rp(s.jumlah)} — ${s.tgl}">${s.no||'Pengajuan'}</span>`).join('');
       return`<tr>
-        <td style="position:sticky;left:0;background:var(--white);z-index:1;min-width:180px">
-          <div style="font-weight:600;color:var(--gray-900);font-size:12px">${u.nama}</div>
+        <td style="position:sticky;left:0;background:var(--white);z-index:1;min-width:150px;border-right:1px solid var(--gray-100)">
+          <div style="font-weight:600;color:var(--gray-900);font-size:12px;line-height:1.4">${u.nama}</div>
           <div style="font-size:10px;margin-top:2px;${isOver?'color:var(--red-dark);font-weight:600':'color:var(--gray-400)'}">
-            ${isOver?'MELEBIHI PAGU: +'+rp(tot-u.anggaran):'Sisa: '+rp(sisa)}
+            ${isOver?'MELEBIHI: +'+rp(tot-u.anggaran):'Sisa: '+rp(sisa)}
           </div>
         </td>
-        <td class="tr money" style="color:var(--gray-600)">${rp(u.anggaran)}</td>
+        <td class="tr money" style="color:var(--gray-600);font-size:11px">${rp(u.anggaran)}</td>
         ${rpdArr.map((v,i)=>`<td class="tr">
           <input class="mi${v>0?(isOver?' over':' filled'):''}" type="number" min="0" value="${v||''}" placeholder="—"
-            onchange="updateRPD('${k}',${u.id},${i},this.value)" onfocus="this.select()" style="width:82px">
+            onchange="updateRPD('${k}',${u.id},${i},this.value)" onfocus="this.select()">
         </td>`).join('')}
         <td class="tr money" id="urt-${u.id}">
           <strong style="color:${isOver?'var(--red-dark)':'var(--blue)'}">${rp(tot)}</strong>
         </td>
         <td class="tc">
-          <button class="btn-ajukan" onclick="openSurat('${k}',${u.id},'${u.nama.replace(/'/g,"\\'").replace(/"/g,'&quot;')}',${u.anggaran})">Ajukan Anggaran</button>
+          <button class="btn-ajukan" onclick="openSurat('${k}',${u.id},'${u.nama.replace(/'/g,"\\'").replace(/"/g,'&quot;')}',${u.anggaran})">Ajukan</button>
           ${chips?`<div class="chips">${chips}</div>`:''}
         </td>
       </tr>`;
@@ -1002,7 +1110,7 @@ window.addUraian=addUraian;
 function delUraian(k,id){
   const u=DB.uraian[k]?.find(x=>x.id==id);
   showConfirm({
-    icon:'🗑️',
+    icon:'',
     title:'Hapus Uraian?',
     msg:`"${u?.nama||'Uraian ini'}" akan dihapus beserta semua data RPD-nya. Tindakan ini tidak bisa dibatalkan.`,
     okLabel:'Ya, Hapus',
@@ -1087,7 +1195,7 @@ function saveAkunAdmin(){
   const pwd=document.getElementById('acc-pwd-admin')?.value;
   if(!usr){showNotif('err','Gagal','Username tidak boleh kosong.');return;}
   showConfirm({
-    icon:'🔐',
+    icon:'',
     title:'Simpan Akun Admin?',
     msg:'Username dan password Operator Perencanaan Renmin akan diperbarui.',
     okLabel:'Ya, Simpan',
@@ -1110,7 +1218,7 @@ function saveAkun(key){
   const pwd=document.getElementById('acc-pwd-'+key)?.value.trim();
   if(!usr){showNotif('err','Gagal','Username tidak boleh kosong.');return;}
   showConfirm({
-    icon:'🔐',
+    icon:'',
     title:'Simpan Akun '+USERS[key]?.label+'?',
     msg:'Username dan password untuk unit ini akan diperbarui.',
     okLabel:'Ya, Simpan',
@@ -1419,7 +1527,7 @@ async function renderAdminTahun(){
       <div style="padding:0 18px 18px">
         <div style="font-size:28px;font-weight:700;color:var(--blue);margin-bottom:6px">${tahunAktif}</div>
         <p style="font-size:13px;color:var(--gray-600);margin-bottom:18px;line-height:1.6">Menutup tahun anggaran akan mengarsip seluruh data RPD, uraian kegiatan, dan surat pengajuan, lalu mereset data aktif menjadi kosong untuk tahun baru.</p>
-        <button class="btn danger-outline" onclick="konfirmasiTutupTahun(${tahunAktif})">🔒 Tutup Tahun Anggaran ${tahunAktif}</button>
+        <button class="btn danger-outline" onclick="konfirmasiTutupTahun(${tahunAktif})">Tutup Tahun Anggaran ${tahunAktif}</button>
       </div>
     </div>
     <div class="card">
@@ -1444,7 +1552,7 @@ async function renderAdminTahun(){
 
 function konfirmasiTutupTahun(tahun){
   showConfirm({
-    icon:'🔒',
+    icon:'',
     title:`Tutup Tahun Anggaran ${tahun}?`,
     msg:`Semua data RPD, uraian, dan surat pengajuan tahun ${tahun} akan diarsip. Data aktif akan direset kosong. Tidak bisa dibatalkan.`,
     okLabel:'Ya, Arsip & Reset',
@@ -1492,7 +1600,7 @@ async function tutupTahunAnggaran(tahun){
 
 function konfirmasiHapusArsip(tahun){
   showConfirm({
-    icon:'🗑️',
+    icon:'',
     title:`Hapus Arsip T.A. ${tahun}?`,
     msg:`Seluruh data arsip tahun ${tahun} akan dihapus permanen dari database. Tidak bisa dikembalikan.`,
     okLabel:'Ya, Hapus Permanen',
