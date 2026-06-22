@@ -1306,7 +1306,7 @@ function buildRekapHTML(k){
       const tot=arr.reduce((a,b)=>a+b,0);
       const sisaU=u.anggaran-tot;
       const pct=u.anggaran>0?Math.round(tot/u.anggaran*100):0;
-      const badge=sisaU<0?`<span class="badge b-red">Lebih</span>`:(sisaU===0&&tot>0?`<span class="badge b-green">Lunas</span>`:`<span class="badge b-blue">${pct}%</span>`);
+      const badge=sisaU<0?`<span class="badge b-red">Lebih</span>`:(sisaU===0&&tot>0?`<span class="badge b-green">Selesai</span>`:`<span class="badge b-blue">${pct}%</span>`);
       const filled=arr.map((v,i)=>({v,i})).filter(x=>x.v>0);
       const months=filled.length
         ? filled.map(x=>`<div class="mrow2"><span class="m2-m">${BULAN12[x.i]}</span><span class="m2-v money">${rp(x.v)}</span></div>`).join('')
