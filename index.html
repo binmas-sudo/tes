@@ -845,11 +845,7 @@ function rp(n){
   return'Rp '+n.toLocaleString('id-ID');
 }
 function rpS(n){
-  if(!n)return'0';
-  if(n>=1e9)return(n/1e9).toFixed(1)+' M';
-  if(n>=1e6)return(n/1e6).toFixed(1)+' jt';
-  if(n>=1e3)return Math.round(n/1e3)+' rb';
-  return n.toString();
+  return rp(n);
 }
 
 // ================================================================
