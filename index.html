@@ -189,7 +189,7 @@ main{flex:1;padding:22px;overflow-x:hidden;min-width:0}
 /* TABLE */
 .tw{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:var(--radius)}
 table{width:100%;border-collapse:collapse;font-size:12px}
-thead th{background:var(--blue-dark);color:#fff;font-weight:600;font-size:10.5px;text-transform:uppercase;letter-spacing:.4px;padding:11px 14px;text-align:left;white-space:nowrap}
+thead th{background:#3B82C4;color:#fff;font-weight:600;font-size:10.5px;text-transform:uppercase;letter-spacing:.4px;padding:11px 14px;text-align:left;white-space:nowrap}
 thead th.tr{text-align:right}
 thead th.tc{text-align:center}
 tbody td{padding:11px 14px;border-bottom:1px solid var(--gray-100);vertical-align:middle;color:var(--gray-700);line-height:1.4}
@@ -477,6 +477,54 @@ header{background:linear-gradient(90deg,#163f87 0%,#1e5ab5 100%)}
 .lform{border-left:none}
 .lhead{margin-bottom:-30px;padding-bottom:0;border-bottom:none}
 @media(max-width:860px){.lform{border-top:none}.lhead{margin-bottom:-22px}}
+
+/* ===== REV: warna progres (merah/kuning/hijau) ===== */
+.pb.c-red{background:#dc2626}
+.pb.c-yellow{background:#e0a800}
+.pb.c-green{background:#16a34a}
+
+/* ===== REV: tema dalam #3B82C4 ===== */
+header{background:#3B82C4;border-bottom:2px solid #2f6aa3}
+.rekap-u-head{background:#3B82C4}
+.rekap-u-head:hover{background:#2f6aa3}
+.btn.pri{background:#3B82C4}
+.btn.pri:hover{background:#2f6aa3}
+.btn-ajukan{background:#3B82C4;border-color:#3B82C4}
+.btn-ajukan:hover{background:#2f6aa3;border-color:#2f6aa3}
+.ue-save{background:#3B82C4}
+.ue-save:hover{background:#2f6aa3}
+.btn-rpd:hover{background:#3B82C4;border-color:#3B82C4}
+/* header bar pada setiap card */
+.card>.ct:first-child{background:#3B82C4;color:#fff;margin:-22px -22px 18px;padding:13px 20px}
+.card-pad0>.ct:first-child{margin:0;padding:14px 18px}
+.ct .pill{background:rgba(255,255,255,.22);color:#fff}
+.ct .badge{background:#fff}
+.ct .btn.sec{background:rgba(255,255,255,.18);color:#fff;border-color:rgba(255,255,255,.4)}
+.ct .btn.sec:hover{background:rgba(255,255,255,.3)}
+.ct .nav-caret{color:#fff}
+
+/* ===== REV: LOGIN ===== */
+.lbrand,.lform{background:#FAFCFE}
+.lhead{flex-direction:row;align-items:center;justify-content:center;gap:13px;margin-bottom:16px;padding-bottom:0;border-bottom:none}
+.form-logo{height:56px;width:auto}
+.lh-brand{font-size:21px;font-weight:800;color:#103476;letter-spacing:1px;line-height:1.15;text-align:left}
+.lwelcome{color:#103476}
+.lwelcome-sub{color:#103476;opacity:.85}
+.login-card{background:#0f3270;border-radius:12px;padding:20px 18px 22px;margin-bottom:18px;box-shadow:0 8px 22px rgba(15,50,112,.18)}
+.login-card .fg{margin-bottom:14px}
+.login-card .fg:nth-last-child(2){margin-bottom:16px}
+.login-card .fg label{color:rgba(255,255,255,.92)}
+.login-card .fg input,.login-card .fg select{background:#fff;border:1px solid rgba(255,255,255,.25);color:var(--gray-900)}
+.login-card .fg input::placeholder{color:var(--gray-400)}
+.login-card .fg input:focus,.login-card .fg select:focus{border-color:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.2)}
+.login-card .btn-login{background:#2e8fd6;color:#fff;margin-top:2px}
+.login-card .btn-login:hover{background:#2278bd;color:#fff}
+@media(max-width:860px){.lhead{margin-bottom:14px}.form-logo{height:46px}.lh-brand{font-size:17px}}
+
+/* ===== REV: login header rata kiri + logo2 lebih besar ===== */
+.lhead{justify-content:flex-start}
+.brand-logo{max-width:90%;max-height:70vh}
+@media(max-width:860px){.lhead{justify-content:center}.brand-logo{max-width:72%;max-height:34vh}}
 </style>
 </head>
 <body>
@@ -489,49 +537,50 @@ header{background:linear-gradient(90deg,#163f87 0%,#1e5ab5 100%)}
 
 <!-- LOGIN -->
 <div id="login-page" style="display:none">
-  <!-- KIRI: logo SIMPATI besar (dari GitHub) -->
+  <!-- KIRI: logo SIMPATI besar -->
   <div class="lbrand">
-    <img class="brand-logo" src="https://raw.githubusercontent.com/binmas-sudo/tes/main/logo1.png" alt="Korbinmas" onerror="this.style.visibility='hidden'">
-    <div class="lmotto-left">&ldquo;Humanis dan Ketulusan adalah Nafas Kami&rdquo;</div>
+    <img class="brand-logo" src="https://raw.githubusercontent.com/binmas-sudo/tes/main/logo2.png" alt="SIMPATI" onerror="this.style.visibility='hidden'">
   </div>
 
-  <!-- KANAN: form login (panel biru) -->
+  <!-- KANAN: form login -->
   <div class="lform">
     <div class="lbox">
       <div class="lhead">
-        <img class="form-logo" src="https://raw.githubusercontent.com/binmas-sudo/tes/main/logo2.png" alt="SIMPATI — Sistem Informasi Perencanaan dan Anggaran Terintegrasi" onerror="this.style.visibility='hidden'">
+        <img class="form-logo" src="https://raw.githubusercontent.com/binmas-sudo/tes/main/logo1.png" alt="Korbinmas" onerror="this.style.visibility='hidden'">
+        <div class="lh-brand">DITBINMAS POLDA ACEH</div>
       </div>
 
-      <div class="lwelcome">Selamat datang</div>
+      <div class="lwelcome">Selamat Datang</div>
       <div class="lwelcome-sub">Masuk untuk mengelola perencanaan dan anggaran unit Anda.</div>
 
       <div class="lerr" id="lerr"></div>
 
-      <div class="fg">
-        <label>Username</label>
-        <input type="text" id="lu" placeholder="Masukkan username" autocomplete="off">
-      </div>
-      <div class="fg">
-        <label>Kata Sandi</label>
-        <input type="password" id="lp" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;" onkeydown="if(event.key==='Enter')doLogin()">
-      </div>
-      <div class="fg">
-        <label>Kelompok User</label>
-        <div class="sel-wrap">
-          <select id="role-select">
-            <option value="">— Pilih Kelompok User —</option>
-            <option value="admin">OPERATOR PERENCANAAN</option>
-            <option value="subbagrenmin">SUBBAGRENMIN</option>
-            <option value="binopsnal">BAGBINOPSNAL</option>
-            <option value="satpam">SUBDITSATPAM/POLSUS</option>
-            <option value="bintibsos">SUBDITBINTIBSOS</option>
-            <option value="bhabin">SUBDITBHABINKAMTIBMAS</option>
-            <option value="binpolmas">SUBDITBINPOLMAS</option>
-          </select>
+      <div class="login-card">
+        <div class="fg">
+          <label>Username</label>
+          <input type="text" id="lu" placeholder="Masukkan username" autocomplete="off">
         </div>
+        <div class="fg">
+          <label>Kata Sandi</label>
+          <input type="password" id="lp" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;" onkeydown="if(event.key==='Enter')doLogin()">
+        </div>
+        <div class="fg">
+          <label>Kelompok User</label>
+          <div class="sel-wrap">
+            <select id="role-select">
+              <option value="">— Pilih Kelompok User —</option>
+              <option value="admin">OPERATOR PERENCANAAN</option>
+              <option value="subbagrenmin">SUBBAGRENMIN</option>
+              <option value="binopsnal">BAGBINOPSNAL</option>
+              <option value="satpam">SUBDITSATPAM/POLSUS</option>
+              <option value="bintibsos">SUBDITBINTIBSOS</option>
+              <option value="bhabin">SUBDITBHABINKAMTIBMAS</option>
+              <option value="binpolmas">SUBDITBINPOLMAS</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn-login" id="btn-login" onclick="doLogin()">Masuk</button>
       </div>
-
-      <button class="btn-login" id="btn-login" onclick="doLogin()">Masuk</button>
 
       <div class="linfo">
         <div class="lit">&#9432; Info Penting</div>
@@ -847,6 +896,10 @@ function rp(n){
 function rpS(n){
   return rp(n);
 }
+function pctCls(p){return p<50?'c-red':(p<80?'c-yellow':'c-green');}
+function pctHex(p){return p<50?'#dc2626':(p<80?'#b45309':'#16a34a');}
+function twlCls(ach,tgt){return pctCls(tgt>0?ach/tgt*100:0);}
+function twlHex(ach,tgt){return pctHex(tgt>0?ach/tgt*100:0);}
 
 // ================================================================
 // AUTH
@@ -1052,7 +1105,7 @@ function renderDashboard(){
 
   const rows=keys.map(k=>{
     const a=totalAngg(k),r=totalRPD(k),s=a-r,p=a>0?Math.round(r/a*100):0;
-    const cls=p>100?'danger':p>=80?'ok':'pb';
+    const cls=pctCls(p);
     const sisakls=s<0?'color:var(--red-dark);font-weight:600':'color:var(--green)';
     return`<tr>
       <td style="font-weight:600;color:var(--gray-900)">${USERS[k]?.label||k}</td>
@@ -1060,7 +1113,7 @@ function renderDashboard(){
       <td class="tr money" style="${sisakls}">${s<0?'(Lebih) ':''} ${rp(Math.abs(s))}</td>
       <td style="min-width:120px"><div style="display:flex;align-items:center;gap:8px">
         <div class="pw" style="flex:1"><div class="pb ${cls}" style="width:${Math.min(p,100)}%"></div></div>
-        <span style="font-size:11px;font-weight:700;min-width:32px;color:${p>100?'var(--red-dark)':'var(--gray-700)'}">${p}%</span>
+        <span style="font-size:11px;font-weight:700;min-width:32px;color:${pctHex(p)}">${p}%</span>
       </div></td></tr>`;
   }).join('');
   document.getElementById('dash-table').innerHTML=`<table>
@@ -1072,8 +1125,8 @@ function renderDashboard(){
   const tgts=[15,50,70,100];
   document.getElementById('dash-twl').innerHTML=['I','II','III','IV'].map((l,i)=>{
     const p=gt>0?(cum[i]/gt*100).toFixed(1):0;
-    const cls=parseFloat(p)>=tgts[i]?'ok':'pb';
-    return`<div class="twlc"><div class="tl">Triwulan ${l}</div><div class="tv">${p}%</div>
+    const cls=twlCls(parseFloat(p),tgts[i]);
+    return`<div class="twlc"><div class="tl">Triwulan ${l}</div><div class="tv" style="color:${twlHex(parseFloat(p),tgts[i])}">${p}%</div>
       <div class="pw" style="margin:5px auto;max-width:80%"><div class="pb ${cls}" style="width:${Math.min(p,100)}%"></div></div>
       <div class="tt">Target ${tgts[i]}%</div><div class="trp">${rp(cum[i])}</div></div>`;
   }).join('');
@@ -1289,8 +1342,8 @@ function buildRekapHTML(k){
   <div class="card"><div class="ct">Progres Triwulan — ${label}</div>
     <div class="twl-grid">${['I','II','III','IV'].map((l,i)=>{
       const p=totalA>0?(cum[i]/totalA*100).toFixed(1):0;
-      const cls=parseFloat(p)>=tgts[i]?'ok':'pb';
-      return`<div class="twlc"><div class="tl">Triwulan ${l}</div><div class="tv">${p}%</div>
+      const cls=twlCls(parseFloat(p),tgts[i]);
+      return`<div class="twlc"><div class="tl">Triwulan ${l}</div><div class="tv" style="color:${twlHex(parseFloat(p),tgts[i])}">${p}%</div>
         <div class="pw" style="margin:5px auto;max-width:80%"><div class="pb ${cls}" style="width:${Math.min(p,100)}%"></div></div>
         <div class="tt">Target ${tgts[i]}%</div><div class="trp">${rp(cum[i])}</div></div>`;
     }).join('')}</div>
@@ -1322,7 +1375,7 @@ function buildRekapHTML(k){
             <span>Total RPD: <b>${rp(tot)}</b></span>
             <span style="color:${sisaU<0?'var(--red-dark)':'var(--gray-500)'}">Sisa: ${rp(Math.abs(sisaU))}${sisaU<0?' (Lebih)':''}</span>
           </div>
-          <div class="pw" style="margin:8px 0 2px"><div class="pb ${pct>100?'danger':pct>=80?'ok':''}" style="width:${Math.min(pct,100)}%"></div></div>
+          <div class="pw" style="margin:8px 0 2px"><div class="pb ${pctCls(pct)}" style="width:${Math.min(pct,100)}%"></div></div>
           <div class="mlist">${months}</div>
         </div>
       </div>`;
@@ -1869,7 +1922,7 @@ async function renderAdminTahun(){
   const tahunAktif=new Date().getFullYear();
   el.innerHTML=`
     <div class="card" style="border-color:var(--blue-mid);background:var(--blue-light);margin-bottom:16px">
-      <div class="ct" style="color:var(--blue-dark)">Tahun Anggaran Aktif</div>
+      <div class="ct">Tahun Anggaran Aktif</div>
       <div style="padding:0 18px 18px">
         <div style="font-size:28px;font-weight:700;color:var(--blue);margin-bottom:6px">${tahunAktif}</div>
         <p style="font-size:13px;color:var(--gray-600);margin-bottom:18px;line-height:1.6">Menutup tahun anggaran akan mengarsip seluruh data RPD, uraian kegiatan, dan surat pengajuan, lalu mereset data aktif menjadi kosong untuk tahun baru.</p>
