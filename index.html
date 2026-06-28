@@ -760,6 +760,7 @@ header{background:#2E6BB8;border-bottom:2px solid #255a9e}
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import {
@@ -1553,8 +1554,122 @@ function renderAdminRekap(unitKey){
   const label=USERS[unitKey]?.label||unitKey;
   document.getElementById('admin-rekap-h1').textContent='Rekap — '+label;
   document.getElementById('admin-rekap-sub').textContent='Rekapitulasi RPD dan pengajuan anggaran '+label;
-  document.getElementById('admin-rekap-content').innerHTML=buildRekapHTML(unitKey);
+  document.getElementById('admin-rekap-content').innerHTML=
+    `<div style="display:flex;justify-content:flex-end;margin-bottom:14px">
+       <button class="btn pri" onclick="downloadRekapExcel('${unitKey}')">&#11015;&nbsp; Download Excel</button>
+     </div>`+buildRekapHTML(unitKey);
 }
+
+// ================================================================
+// EXPORT EXCEL (operator) — format mengikuti template RPD Subsatker
+// ================================================================
+function _xlB(){const c={style:'thin',color:{rgb:'000000'}};return {top:c,bottom:c,left:c,right:c};}
+function downloadRekapExcel(k){
+  if(typeof XLSX==='undefined'){alert('Komponen Excel sedang dimuat, coba sesaat lagi.');return;}
+  const label=USERS[k]?.label||k;
+  const list=DB.uraian[k]||[];
+  const M=['JANUARI','FEBRUARI','MARET','APRIL','MEI','JUNI','JULI','AGUSTUS','SEPTEMBER','OKTOBER','NOVEMBER','DESEMBER'];
+  const blank=()=>Array(16).fill(null);
+  const aoa=[];
+  aoa.push(['KEPOLISIAN NEGARA REPUBLIK INDONESIA']);
+  aoa.push(['DAERAH ACEH']);
+  aoa.push(['DIREKTORAT PEMBINAAN MASYARAKAT']);
+  aoa.push([]);
+  aoa.push(['RENCANA PENARIKAN DANA (RPD) SATKER DITBINMAS T.A. 2026']);
+  aoa.push([label]);
+  aoa.push([]);
+  aoa.push(['No.','URAIAN','DUKUNGAN ANGGARAN DALAM RKA-KL','TOTAL PENYERAPAN'].concat(M));
+  const firstData=9;
+  const sums=Array(12).fill(0); let sumPagu=0,sumTot=0;
+  list.forEach((u,idx)=>{
+    const arr=(DB.rpd[k]&&DB.rpd[k][u.id])||[];
+    const row=[idx+1,u.nama,u.anggaran||0,null];
+    let tot=0;
+    for(let m=0;m<12;m++){const v=Number(arr[m])||0;row.push(v>0?v:null);tot+=v;sums[m]+=v;}
+    sumPagu+=(u.anggaran||0);sumTot+=tot;
+    aoa.push(row);
+  });
+  const lastData=firstData+list.length-1;
+  const jr=aoa.length+1;
+  const jrow=['','JUMLAH',sumPagu,sumTot];
+  for(let m=0;m<12;m++)jrow.push(sums[m]||null);
+  aoa.push(jrow);
+  aoa.push([]); aoa.push([]);
+  const sr=aoa.length+1;
+  let row;
+  row=blank(); row[1]='Mengetahui :'; row[13]='Banda Aceh,            Januari   2026'; aoa.push(row);
+  row=blank(); row[1]='DIREKTUR BINMAS POLDA ACEH'; row[13]='KEPALA SUB SATUAN KERJA'; aoa.push(row);
+  aoa.push([]); aoa.push([]); aoa.push([]);
+  row=blank(); row[1]='( ................................. )'; row[13]='( ................................. )'; aoa.push(row);
+  row=blank(); row[1]='NRP.'; row[13]='NRP.'; aoa.push(row);
+  aoa.push([]);
+  const pr=aoa.length+1;
+  row=blank(); row[2]='PERSENTASE PENYERAPAN'; aoa.push(row);
+  ['TRIWULAN I','TRIWULAN II','TRIWULAN III','TRIWULAN IV'].forEach(t=>{row=blank();row[2]=t;aoa.push(row);});
+
+  const ws=XLSX.utils.aoa_to_sheet(aoa);
+  const C=i=>XLSX.utils.encode_col(i);
+
+  // Rumus D tiap baris data
+  for(let i=0;i<list.length;i++){
+    const r=firstData+i;const arr=(DB.rpd[k]&&DB.rpd[k][list[i].id])||[];
+    let tot=0;for(let m=0;m<12;m++)tot+=Number(arr[m])||0;
+    ws['D'+r]={t:'n',f:`SUM(E${r}:P${r})`,v:tot};
+  }
+  // Rumus JUMLAH
+  if(list.length){
+    ws['C'+jr]={t:'n',f:`SUM(C${firstData}:C${lastData})`,v:sumPagu};
+    ws['D'+jr]={t:'n',f:`SUM(D${firstData}:D${lastData})`,v:sumTot};
+    for(let c=4;c<16;c++){const L=C(c);ws[L+jr]={t:'n',f:`SUM(${L}${firstData}:${L}${lastData})`,v:sums[c-4]||0};}
+  }
+  // Rumus triwulan
+  const twEnd=['G','J','M','P'], twN=[3,6,9,12];
+  for(let t=0;t<4;t++){
+    const r=pr+1+t;let cum=0;for(let m=0;m<twN[t];m++)cum+=sums[m];
+    ws['D'+r]={t:'n',f:`SUM(E${jr}:${twEnd[t]}${jr})`,v:cum};
+    ws['E'+r]={t:'n',f:`IF(C${jr}=0,0,D${r}/C${jr})`,v:sumPagu>0?cum/sumPagu:0};
+  }
+
+  ws['!merges']=[
+    {s:{r:0,c:0},e:{r:0,c:15}},{s:{r:1,c:0},e:{r:1,c:15}},{s:{r:2,c:0},e:{r:2,c:15}},
+    {s:{r:4,c:0},e:{r:4,c:15}},{s:{r:5,c:0},e:{r:5,c:15}},
+    {s:{r:pr-1,c:2},e:{r:pr-1,c:3}}
+  ];
+  ws['!cols']=[{wch:5},{wch:42},{wch:18},{wch:15}].concat(Array(12).fill({wch:11}));
+
+  const B=_xlB();
+  const setS=(ref,st)=>{if(!ws[ref])ws[ref]={t:'z',v:null};ws[ref].s=Object.assign(ws[ref].s||{},st);};
+  [1,2,3].forEach(r=>setS('A'+r,{font:{bold:true,name:'Arial',sz:11},alignment:{horizontal:'center'}}));
+  setS('A5',{font:{bold:true,name:'Arial',sz:12},alignment:{horizontal:'center'}});
+  setS('A6',{font:{bold:true,name:'Arial',sz:11},alignment:{horizontal:'center'}});
+  for(let c=0;c<16;c++)setS(C(c)+'8',{font:{bold:true,name:'Arial',sz:9,color:{rgb:'FFFFFF'}},alignment:{horizontal:'center',vertical:'center',wrapText:true},border:B,fill:{fgColor:{rgb:'2E6BB8'}}});
+  for(let r=firstData;r<=jr;r++){
+    for(let c=0;c<16;c++){
+      const ref=C(c)+r;const st={border:B,font:{name:'Arial',sz:9,bold:r===jr}};
+      if(c===0)st.alignment={horizontal:'center',vertical:'center'};
+      else if(c===1)st.alignment={vertical:'center',wrapText:true};
+      else {st.alignment={horizontal:'right',vertical:'center'};st.numFmt='#,##0';}
+      setS(ref,st);
+    }
+  }
+  setS('B'+sr,{font:{name:'Arial',sz:10}});
+  setS('N'+sr,{font:{name:'Arial',sz:10}});
+  setS('B'+(sr+1),{font:{bold:true,name:'Arial',sz:10}});
+  setS('N'+(sr+1),{font:{bold:true,name:'Arial',sz:10}});
+  setS('C'+pr,{font:{bold:true,name:'Arial',sz:10},alignment:{horizontal:'center'},border:B});
+  setS('D'+pr,{border:B});
+  for(let t=0;t<4;t++){const r=pr+1+t;
+    setS('C'+r,{font:{name:'Arial',sz:9},border:B});
+    setS('D'+r,{numFmt:'#,##0',border:B,font:{name:'Arial',sz:9},alignment:{horizontal:'right'}});
+    setS('E'+r,{numFmt:'0.00%',border:B,font:{name:'Arial',sz:9},alignment:{horizontal:'right'}});
+  }
+
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'RPD');
+  const safe=label.replace(/[\\\/:*?"<>|]/g,'-');
+  XLSX.writeFile(wb,`RPD_${safe}_2026.xlsx`);
+}
+window.downloadRekapExcel=downloadRekapExcel;
 
 // ================================================================
 // ADMIN — KELOLA AKUN
